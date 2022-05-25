@@ -1,7 +1,11 @@
 package br.edu.ifpe.tads.pdm.pratica04;
 
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.widget.Toast;
 
@@ -19,8 +23,10 @@ import br.edu.ifpe.tads.pdm.pratica04.databinding.ActivityMapsBinding;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
+    private static final Object FINE_LOCATION_REQUEST = false;
     private GoogleMap mMap;
     private ActivityMapsBinding binding;
+    private boolean fine_location;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,6 +39,25 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+        requestPermission();
+    }
+
+    //Esse método verifica se já temos a permissão que queremos
+    private void requestPermission() {int permissionCheck = ContextCompat.checkSelfPermission(this,
+            Manifest.permission.ACCESS_FINE_LOCATION);
+        this.fine_location = (permissionCheck == PackageManager.PERMISSION_GRANTED);
+        if (this.fine_location) return;
+        ActivityCompat.requestPermissions(this,
+                new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, (Integer) FINE_LOCATION_REQUEST);
+    }
+
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        boolean granted = (grantResults.length > 0) &&
+                (grantResults[0] == PackageManager.PERMISSION_GRANTED);
+        this.fine_location = (requestCode == (Integer) FINE_LOCATION_REQUEST) && granted;
     }
 
     /**
@@ -63,7 +88,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 title("João Pessoa").
                 icon(BitmapDescriptorFactory.defaultMarker(230)));
         mMap.moveCamera(CameraUpdateFactory.newLatLng(recife));
-
+        //  trata o evento de click/toque nos marcadores:
         mMap.setOnMarkerClickListener(marker -> {
             Toast.makeText(MapsActivity.this,
                     "Você clicou em " + marker.getTitle(),
@@ -71,10 +96,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             return false;
         });
 
-        /*Adicionar marcadores com o toque do usuário*/
+        //  Adicionar marcadores com o toque do usuário
         mMap.setOnMapClickListener(latLng -> mMap.addMarker(new MarkerOptions().
                 position(latLng).
                 title("Adicionado em " + new Date()).
                 icon(BitmapDescriptorFactory.defaultMarker(0))));
+
+
     }
 }

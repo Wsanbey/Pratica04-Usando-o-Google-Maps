@@ -6,4 +6,21 @@
     android:name="com.google.android.gms.maps.SupportMapFragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+
+    map:uiZoomControls="true"
+    map:mapType="hybrid"
+    map:cameraZoom="10"
     tools:context=".MapsActivity" />
+
+    <!--
+    As propriedades adicionadas habilitam os controles de zoom
+        map:uiZoomControls="true"
+    configuram o mapa em modo híbrido
+        map:mapType="hybrid"
+    e o zoom padrão para nível de cidade
+        map:cameraZoom="10"
+
+    Para mais informações:
+        https://developers.google.com/maps/documentation/android-sdk/map
+
+     -->

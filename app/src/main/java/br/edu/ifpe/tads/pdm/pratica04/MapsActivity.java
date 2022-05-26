@@ -6,9 +6,14 @@ import androidx.fragment.app.FragmentActivity;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.location.Location;
 import android.os.Bundle;
 import android.widget.Toast;
+import android.view.ViewGroup;
 
+import com.google.android.filament.View;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -16,6 +21,7 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.Task;
 
 import java.util.Date;
 
@@ -75,6 +81,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 return;
             }
             mMap.setMyLocationEnabled(this.fine_location);
+            findViewById(R.id.button_location).setEnabled(this.fine_location);
+
         }
     }
 
@@ -89,6 +97,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
      */
     @Override
     public void onMapReady(GoogleMap googleMap) {
+        findViewById(R.id.button_location).setEnabled(this.fine_location);
+
         mMap = googleMap;
         LatLng recife = new LatLng(-8.05, -34.9);
         LatLng caruaru = new LatLng(-8.27, -35.98);
@@ -144,6 +154,29 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             "Indo para a sua localização.", Toast.LENGTH_SHORT).show();
                     return false;
                 });
-
     }
+
+    public void currentLocation(View view) {
+        FusedLocationProviderClient fusedLocationProviderClient =
+                LocationServices.getFusedLocationProviderClient(this);
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+        Task<Location> task = fusedLocationProviderClient.getLastLocation();
+        task.addOnSuccessListener(location -> {
+            if (location!=null) {
+                Toast.makeText(MapsActivity.this, "Localização atual: \n" +
+                        "Lat: " + location.getLatitude() + " " +
+                        "Long: " + location.getLongitude(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
 }
